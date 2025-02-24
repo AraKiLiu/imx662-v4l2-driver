@@ -6,15 +6,24 @@
 
 / {
 	/*
-	 * 將 compatible 加入 "brcm,bcm2712" 以表示相容 Raspberry Pi 5/CM5
-	 * 也可保留 "brcm,bcm2835" 來涵蓋舊版韌體的廣義支援
+	 * Add "brcm,bcm2712" to compatible to indicate Raspberry Pi 5/CM5 compatibility.
+	 * "brcm,bcm2835" can also be kept for broader support of older firmware.
 	 */
 	compatible = "brcm,bcm2712", "brcm,bcm2835";
 
 	fragment@0 {
 		target = <&cam_endpoint>;
 		__overlay__ {
+			/*
+			 * Configure data lanes for 2-lane mode.
+			 * data-lanes: Specifies the data lanes used for the camera interface (1 and 2 in this case).
+			 */
 			data-lanes = <1 2>;
+			/*
+			 * Configure link frequencies for 2-lane mode.
+			 * link-frequencies: Specifies the link frequencies in bits per second.
+			 * /bits/ 64 <594000000>: Represents a 64-bit value of 594,000,000 (594 MHz), likely for high-speed 2-lane operation.
+			 */
 			link-frequencies = /bits/ 64 <594000000>;
 		};
 	};
@@ -22,7 +31,16 @@
 	fragment@1 {
 		target = <&cam_endpoint>;
 		__dormant__ {
+			/*
+			 * Configure data lanes for 4-lane mode (dormant/inactive state).
+			 * data-lanes: Specifies the data lanes used for 4-lane mode (1, 2, 3, and 4).
+			 */
 			data-lanes = <1 2 3 4>;
+			/*
+			 * Configure link frequencies for 4-lane mode (dormant/inactive state).
+			 * link-frequencies: Specifies the link frequencies for 4-lane mode.
+			 * /bits/ 64 <297000000>: Represents a 64-bit value of 297,000,000 (297 MHz), likely for lower-speed 4-lane operation or a dormant state.
+			 */
 			link-frequencies = /bits/ 64 <297000000>;
 		};
 	};
@@ -30,6 +48,10 @@
 	fragment@2 {
 		target = <&csi_ep>;
 		__overlay__ {
+			/*
+			 * Configure data lanes for CSI endpoint in 2-lane mode.
+			 * data-lanes: Specifies the data lanes used for the CSI endpoint in 2-lane mode (1 and 2).
+			 */
 			data-lanes = <1 2>;
 		};
 	};
@@ -37,13 +59,17 @@
 	fragment@3 {
 		target = <&csi_ep>;
 		__dormant__ {
+			/*
+			 * Configure data lanes for CSI endpoint in 4-lane mode (dormant/inactive state).
+			 * data-lanes: Specifies the data lanes used for the CSI endpoint in 4-lane mode (1, 2, 3, and 4).
+			 */
 			data-lanes = <1 2 3 4>;
 		};
 	};
 
 	/*
-	 * 將 i2c_csi_dsi 改為 i2c_csi_dsi0（假設使用CAM0 I2C）
-	 * 確保在 config.txt 中已開啟: dtparam=i2c_csi_dsi0=on
+	 * Change i2c_csi_dsi to i2c_csi_dsi0 (assuming CAM0 I2C is used).
+	 * Ensure that dtparam=i2c_csi_dsi0=on is enabled in config.txt.
 	 */
 	i2c_frag: fragment@10 {
 		target = <&i2c_csi_dsi0>;
@@ -54,34 +80,59 @@
 
 			cam_node: imx662@1a {
 				compatible = "sony,imx662";
+				/*
+				 * Device address of the IMX662 sensor on the I2C bus.
+				 * reg: Specifies the I2C address of the IMX662 sensor (0x1a).
+				 */
 				reg = <0x1a>;
 
 				/*
-				 * 若模組需要 SoC 輸出時脈，使用下列 clocks 屬性
-				 * 對應前面 clk_frag 中的 cam0_clk
+				 * If the module requires SoC output clock, use the following clocks property.
+				 * Corresponds to cam0_clk in the clk_frag.
+				 * clocks: Specifies the clock source for the IMX662 sensor, referencing &cam0_clk.
 				 */
 				clocks = <&cam0_clk>;
+				/*
+				 * clock-names: Assigns the name "xclk" to the clock source.
+				 */
 				clock-names = "xclk";
 				/*
-				 * 預設維持 37.125 MHz，視實際模組需求可改為 74.25 MHz
-				 * 或其他已確定的頻率
+				 * Default to 37.125 MHz, can be changed to 74.25 MHz or other confirmed frequencies
+				 * depending on the actual module requirements.
+				 * clock-frequency: Specifies the clock frequency in Hz (37.125 MHz).
 				 */
 				clock-frequency = <37125000>;
 
+				/*
+				 * rotation: Specifies the rotation of the image sensor (0 degrees in this case).
+				 */
 				rotation = <0>;
+				/*
+				 * orientation: Specifies the orientation of the image sensor (2, likely indicating a specific mounting orientation).
+				 */
 				orientation = <2>;
 
 				/*
-				 * 根據硬體對應的 regulator 進行修正
-				 * 若使用 camera0 的 2.8V 腳位，可改為 &cam0_reg
+				 * Modify according to the regulator corresponding to the hardware.
+				 * If using the 2.8V pin of camera0, it can be changed to &cam0_reg.
+				 * vdda-supply: Voltage supply for analog circuitry (2.8V from &cam0_reg).
 				 */
 				vdda-supply = <&cam0_reg>;           /* 2.8v */
+				/*
+				 * vdddo-supply: Voltage supply for digital I/O (1.8V from &cam_dummy_reg, likely a placeholder).
+				 */
 				vdddo-supply = <&cam_dummy_reg>;     /* 1.8v */
+				/*
+				 * vddd-supply: Voltage supply for digital core (1.5V from &cam_dummy_reg, likely a placeholder).
+				 */
 				vddd-supply = <&cam_dummy_reg>;      /* 1.5v */
 
 				port {
 					cam_endpoint: endpoint {
 						remote-endpoint = <&csi_ep>;
+						/*
+						 * clock-lanes: Specifies the clock lane used for the camera endpoint (0 in this case).
+						 */
 						clock-lanes = <0>;
 					};
 				};
@@ -90,12 +141,15 @@
 	};
 
 	/*
-	 * 原本 target = <&csi1>; 改為 <&csi0> 代表使用CAM0
+	 * Originally target = <&csi1>; changed to <&csi0> to represent using CAM0.
 	 */
 	csi_frag: fragment@11 {
 		target = <&csi0>;
 		csi: __overlay__ {
 			status = "okay";
+			/*
+			 * brcm,media-controller: Indicates that this CSI interface is a media controller.
+			 */
 			brcm,media-controller;
 
 			port {
@@ -114,13 +168,16 @@
 	};
 
 	/*
-	 * 相機時脈：若由 SoC 提供 37.125 MHz 時脈，則綁定到 cam0_clk
-	 * 可依實際情況改為 &cam1_clk 或自訂 fixed-clock
+	 * Camera clock: If SoC provides 37.125 MHz clock, bind to cam0_clk.
+	 * Can be changed to &cam1_clk or custom fixed-clock depending on the actual situation.
 	 */
 	clk_frag: fragment@13 {
 		target = <&cam0_clk>;
 		cam_clk: __overlay__ {
 			status = "okay";
+			/*
+			 * clock-frequency: Specifies the clock frequency for cam0_clk (37.125 MHz).
+			 */
 			clock-frequency = <37125000>;
 		};
 	};
@@ -133,7 +190,7 @@
 	};
 
 	__overrides__ {
-		/* 如果需要 4lane，可透過參數 4lane=1 來切換 Overlay */
+		/* If 4lane is needed, you can switch Overlay through the parameter 4lane=1. */
 		4lane = <0>, "-0+1-2+3";
 
 		clock-frequency = <&cam_clk>,"clock-frequency:0",
@@ -144,9 +201,9 @@
 		media-controller = <&csi>,"brcm,media-controller?";
 
 		/*
-		 * 讓使用者在 config.txt 加參數 cam0=1 時
-		 * 可以自動切換到CAM0介面 / 調整必要的節點
-		 * 依據實際需要保留或移除下列這些 override
+		 * Allow users to add the parameter cam0=1 in config.txt
+		 * to automatically switch to the CAM0 interface / adjust necessary nodes.
+		 * Keep or remove the following overrides according to actual needs.
 		 */
 		cam0 = <&i2c_frag>, "target:0=", <&i2c_csi_dsi0>,
 			<&csi_frag>, "target:0=", <&csi0>,
