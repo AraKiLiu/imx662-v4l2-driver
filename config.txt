@@ -15,7 +15,6 @@ dtparam=audio=on
 
 # Automatically load overlays for detected cameras
 camera_auto_detect=0
-dtoverlay=imx662
 
 # Automatically load overlays for detected DSI displays
 display_auto_detect=1
@@ -50,8 +49,9 @@ otg_mode=1
 dtoverlay=dwc2,dr_mode=host
 
 [all]
-dtoverlay=imx662,cam0
-dtoverlay=imx662,cam1
+dtoverlay=imx662
+# dtoverlay=imx662,cam0
+# dtoverlay=imx662,cam1
 
 dtoverlay=disable-wifi
 dtoverlay=disable-bt
