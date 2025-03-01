@@ -46,6 +46,14 @@ arm_boost=1
 # (e.g. for USB device mode) or if USB support is not required.
 otg_mode=1
 
-[all]
+[cm5]
+dtoverlay=dwc2,dr_mode=host
 
-enable_uart=1
+[all]
+dtoverlay=imx662,cam0
+dtoverlay=imx662,cam1
+
+dtoverlay=disable-wifi
+dtoverlay=disable-bt
+
+# enable_uart=1
