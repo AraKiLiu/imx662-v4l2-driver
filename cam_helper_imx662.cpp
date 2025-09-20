@@ -1,14 +1,14 @@
 /* SPDX-License-Identifier: BSD-2-Clause */
 /*
- * Copyright (C) 2021, Raspberry Pi Ltd
+ * Copyright (C) 2025, Raspberry Pi Ltd
  *
- * cam_helper_imx662.cpp - camera helper for imx662 sensor
+ * cam_helper_imx662.cpp - camera information for imx662 sensor
  */
 
-#include <math.h>
+#include <assert.h>
 
 #include "cam_helper.h"
-
+#include "math.h"
 using namespace RPiController;
 
 class CamHelperImx662 : public CamHelper
@@ -17,8 +17,6 @@ public:
 	CamHelperImx662();
 	uint32_t gainCode(double gain) const override;
 	double gain(uint32_t gainCode) const override;
-	// void getDelays(int &exposureDelay, int &gainDelay,
-	// 	       int &vblankDelay, int &hblankDelay) const override;
 	unsigned int hideFramesStartup() const override;
 	unsigned int hideFramesModeSwitch() const override;
 
@@ -27,8 +25,13 @@ private:
 	 * Smallest difference between the frame length and integration time,
 	 * in units of lines.
 	 */
-	static constexpr int frameIntegrationDiff = 2;
+	static constexpr int frameIntegrationDiff = 4;
 };
+
+/*
+ * IMX662 doesn't output metadata, so we have to use the "unicam parser" which
+ * works by counting frames.
+ */
 
 CamHelperImx662::CamHelperImx662()
 	: CamHelper({}, frameIntegrationDiff)
@@ -45,15 +48,6 @@ double CamHelperImx662::gain(uint32_t gainCode) const
 {
 	return pow(10, 0.015 * gainCode);
 }
-
-// void CamHelperImx662::getDelays(int &exposureDelay, int &gainDelay,
-// 				int &vblankDelay, int &hblankDelay) const
-// {
-// 	exposureDelay = 2;
-// 	gainDelay = 2;
-// 	vblankDelay = 2;
-// 	hblankDelay = 2;
-// }
 
 unsigned int CamHelperImx662::hideFramesStartup() const
 {
