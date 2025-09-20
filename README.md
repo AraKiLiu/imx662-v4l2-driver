@@ -15,9 +15,14 @@ High-performance V4L2 driver for Sony IMX662 CMOS image sensor, optimized for Ra
 - ✅ MIPI CSI-2 interface (2-lane/4-lane configurable)
 - ✅ Monochrome sensor support
 - ✅ Full libcamera integration
+- ✅ Dual camera support (simultaneous use)
 
 ### Quick Installation
 ```bash
+# Clone the repository
+git clone https://github.com/AraKiLiu/imx662-v4l2-driver.git
+cd imx662-v4l2-driver/
+
 # For Standard Raspberry Pi OS (with GUI)
 ./all_setup.sh
 
@@ -77,9 +82,9 @@ Sony IMX662 CMOS 影像感測器的高性能 V4L2 驅動程式，專為 Raspberr
 
 ### 📱 標準版 Raspberry Pi OS
 ```bash
-# 解壓驅動程式套件
-tar -zxf imx662-v4l2-driver_6_12_y-binning-fix.tgz
-cd imx662-v4l2-driver_6_12_y-binning-fix/
+# 下載驅動程式原始碼
+git clone https://github.com/AraKiLiu/imx662-v4l2-driver.git
+cd imx662-v4l2-driver/
 
 # 執行完整自動安裝（包含 V4L2 + libcamera）
 ./all_setup.sh
@@ -93,9 +98,9 @@ rpicam-hello --list-cameras
 
 ### 💻 Raspberry Pi OS Lite
 ```bash
-# 解壓驅動程式套件
-tar -zxf imx662-v4l2-driver_6_12_y-binning-fix.tgz
-cd imx662-v4l2-driver_6_12_y-binning-fix/
+# 下載驅動程式原始碼
+git clone https://github.com/AraKiLiu/imx662-v4l2-driver.git
+cd imx662-v4l2-driver/
 
 # 執行 Lite 版本自動安裝（無 GUI，純命令列）
 ./lite_all_setup.sh
@@ -259,16 +264,10 @@ ls /lib/modules/$(uname -r)/build/
 
 ### 第二步：取得驅動程式原始碼
 
-如果您是從 GitHub 下載：
+從 GitHub 下載原始碼：
 ```bash
-git clone https://github.com/will127534/imx662-v4l2-driver.git
+git clone https://github.com/AraKiLiu/imx662-v4l2-driver.git
 cd imx662-v4l2-driver/
-```
-
-如果您有壓縮檔案：
-```bash
-tar -zxf imx662-v4l2-driver_6_12_y-binning-fix.tgz
-cd imx662-v4l2-driver_6_12_y-binning-fix/
 ```
 
 ### 第三步：編譯並安裝驅動程式
@@ -546,7 +545,7 @@ git clone https://github.com/raspberrypi/rpicam-apps.git
 
 ```bash
 # 複製 IMX662 相機協助程式檔案
-cp /home/pi/imx662-v4l2-driver_6_12_y-binning-fix/cam_helper_imx662.cpp \
+cp /home/pi/imx662-v4l2-driver/cam_helper_imx662.cpp \
    /home/pi/camera_build/libcamera/src/ipa/rpi/cam_helper/
 ```
 
@@ -581,10 +580,10 @@ rpi_ipa_cam_helper_sources = files([
 
 ```bash
 # 複製調校檔案到 vc4 和 pisp 目錄
-cp /home/pi/imx662-v4l2-driver_6_12_y-binning-fix/imx662.json \
+cp /home/pi/imx662-v4l2-driver/imx662.json \
    /home/pi/camera_build/libcamera/src/ipa/rpi/vc4/data/imx662.json
 
-cp /home/pi/imx662-v4l2-driver_6_12_y-binning-fix/imx662.json \
+cp /home/pi/imx662-v4l2-driver/imx662.json \
    /home/pi/camera_build/libcamera/src/ipa/rpi/pisp/data/imx662.json
 ```
 
@@ -721,14 +720,14 @@ fi
 
 # 整合 IMX662 支援
 echo "🔧 整合 IMX662 支援..."
-cp /home/pi/imx662-v4l2-driver_6_12_y-binning-fix/cam_helper_imx662.cpp \
+cp /home/pi/imx662-v4l2-driver/cam_helper_imx662.cpp \
    /home/pi/camera_build/libcamera/src/ipa/rpi/cam_helper/
 
 # 複製調校檔案
 echo "📄 複製 IMX662 調校檔案..."
-cp /home/pi/imx662-v4l2-driver_6_12_y-binning-fix/imx662.json \
+cp /home/pi/imx662-v4l2-driver/imx662.json \
    /home/pi/camera_build/libcamera/src/ipa/rpi/vc4/data/imx662.json
-cp /home/pi/imx662-v4l2-driver_6_12_y-binning-fix/imx662.json \
+cp /home/pi/imx662-v4l2-driver/imx662.json \
    /home/pi/camera_build/libcamera/src/ipa/rpi/pisp/data/imx662.json
 
 # 編譯 libcamera
@@ -924,7 +923,7 @@ dmesg | tail -50
 
 #### 手動編譯測試
 ```bash
-cd /home/pi/imx662-v4l2-driver_6_12_y-binning-fix/
+cd /home/pi/imx662-v4l2-driver/
 make clean
 make
 sudo insmod imx662.ko
