@@ -1,0 +1,73 @@
+diff --git a/src/libcamera/pipeline/rpi/pisp/pisp.cpp b/src/libcamera/pipeline/rpi/pisp/pisp.cpp
+index 77acd2f6..19060a4a 100644
+--- a/src/libcamera/pipeline/rpi/pisp/pisp.cpp
++++ b/src/libcamera/pipeline/rpi/pisp/pisp.cpp
+@@ -882,9 +882,9 @@ bool PipelineHandlerPiSP::match(DeviceEnumerator *enumerator)
+ 	 */
+ 	for (unsigned int i = 0; i < numCfeDevices; i++) {
+ 		DeviceMatch cfe("rp1-cfe");
+-		cfe.add("rp1-cfe-fe-image0");
+-		cfe.add("rp1-cfe-fe-stats");
+-		cfe.add("rp1-cfe-fe-config");
++		cfe.add("rp1-cfe-fe_image0");
++		cfe.add("rp1-cfe-fe_stats");
++		cfe.add("rp1-cfe-fe_config");
+ 		std::shared_ptr<MediaDevice> cfeDevice = acquireMediaDevice(enumerator, cfe);
+ 
+ 		if (!cfeDevice) {
+@@ -1072,10 +1072,10 @@ int PipelineHandlerPiSP::platformRegister(std::unique_ptr<RPi::CameraData> &came
+ 	PiSPCameraData *data = static_cast<PiSPCameraData *>(cameraData.get());
+ 	int ret;
+ 
+-	MediaEntity *cfeImage = cfe->getEntityByName("rp1-cfe-fe-image0");
+-	MediaEntity *cfeEmbedded = cfe->getEntityByName("rp1-cfe-csi2-ch1");
+-	MediaEntity *cfeStats = cfe->getEntityByName("rp1-cfe-fe-stats");
+-	MediaEntity *cfeConfig = cfe->getEntityByName("rp1-cfe-fe-config");
++	MediaEntity *cfeImage = cfe->getEntityByName("rp1-cfe-fe_image0");
++	MediaEntity *cfeEmbedded = cfe->getEntityByName("rp1-cfe-embedded");
++	MediaEntity *cfeStats = cfe->getEntityByName("rp1-cfe-fe_stats");
++	MediaEntity *cfeConfig = cfe->getEntityByName("rp1-cfe-fe_config");
+ 	MediaEntity *ispInput = isp->getEntityByName("pispbe-input");
+ 	MediaEntity *IpaPrepare = isp->getEntityByName("pispbe-config");
+ 	MediaEntity *ispOutput0 = isp->getEntityByName("pispbe-output0");
+@@ -2158,8 +2158,8 @@ int PiSPCameraData::configureEntities(V4L2SubdeviceFormat sensorFormat,
+ 	int ret = 0;
+ 
+ 	constexpr unsigned int csiVideoSinkPad = 0;
+-	constexpr unsigned int csiVideoSourcePad = 1;
+-	constexpr unsigned int csiMetaSourcePad = 2;
++	constexpr unsigned int csiVideoSourcePad = 4;
++	constexpr unsigned int csiMetaSourcePad = 5;
+ 
+ 	constexpr unsigned int feVideoSinkPad = 0;
+ 	constexpr unsigned int feConfigSinkPad = 1;
+@@ -2171,18 +2171,23 @@ int PiSPCameraData::configureEntities(V4L2SubdeviceFormat sensorFormat,
+ 	const MediaEntity *fe = feSubdev_->entity();
+ 
+ 	for (MediaLink *link : csi2->pads()[csiVideoSourcePad]->links()) {
+-		if (link->sink()->entity()->name() == "rp1-cfe-csi2-ch0")
++		if (link->sink()->entity()->name() == "rp1-cfe-csi2_ch0")
+ 			link->setEnabled(false);
+ 		else if (link->sink()->entity()->name() == "pisp-fe")
+ 			link->setEnabled(true);
+ 	}
+ 
+-	csi2->pads()[csiMetaSourcePad]->links()[0]->setEnabled(sensorMetadata_);
++	if (!csi2->pads()[csiMetaSourcePad]->links().empty())
++		csi2->pads()[csiMetaSourcePad]->links()[0]->setEnabled(sensorMetadata_);
+ 
+-	fe->pads()[feConfigSinkPad]->links()[0]->setEnabled(true);
+-	fe->pads()[feVideo0SourcePad]->links()[0]->setEnabled(true);
+-	fe->pads()[feVideo1SourcePad]->links()[0]->setEnabled(false);
+-	fe->pads()[feStatsSourcePad]->links()[0]->setEnabled(true);
++	if (!fe->pads()[feConfigSinkPad]->links().empty())
++		fe->pads()[feConfigSinkPad]->links()[0]->setEnabled(true);
++	if (!fe->pads()[feVideo0SourcePad]->links().empty())
++		fe->pads()[feVideo0SourcePad]->links()[0]->setEnabled(true);
++	if (!fe->pads()[feVideo1SourcePad]->links().empty())
++		fe->pads()[feVideo1SourcePad]->links()[0]->setEnabled(false);
++	if (!fe->pads()[feStatsSourcePad]->links().empty())
++		fe->pads()[feStatsSourcePad]->links()[0]->setEnabled(true);
+ 
+ 	const V4L2Subdevice::Stream imageStream{
+ 		csiVideoSinkPad,

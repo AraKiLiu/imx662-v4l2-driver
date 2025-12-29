@@ -1,0 +1,15 @@
+diff --git a/core/rpicam_app.cpp b/core/rpicam_app.cpp
+index 0f0b5ff..9cd008b 100644
+--- a/core/rpicam_app.cpp
++++ b/core/rpicam_app.cpp
+@@ -904,7 +904,9 @@ void RPiCamApp::queueRequest(CompletedRequest *completed_request)
+ 
+ 	{
+ 		std::lock_guard<std::mutex> lock(control_mutex_);
+-		request->controls() = std::move(controls_);
++		// libcamera 0.6.0+ does not allow direct overwrite of controls, use merge instead
++		request->controls().merge(controls_, libcamera::ControlList::MergePolicy::OverwriteExisting);
++		controls_ = {};
+ 	}
+ 
+ 	if (camera_->queueRequest(request) < 0)

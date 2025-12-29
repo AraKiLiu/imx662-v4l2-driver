@@ -1,0 +1,24 @@
+diff --git a/src/ipa/rpi/pisp/data/meson.build b/src/ipa/rpi/pisp/data/meson.build
+index 5c629bdc..6adce2d9 100644
+--- a/src/ipa/rpi/pisp/data/meson.build
++++ b/src/ipa/rpi/pisp/data/meson.build
+@@ -16,6 +16,7 @@ conf_files = files([
+     'imx477_noir.json',
+     'imx477_scientific.json',
+     'imx519.json',
++    'imx662.json',
+     'imx708.json',
+     'imx708_noir.json',
+     'imx708_wide.json',
+diff --git a/src/ipa/rpi/vc4/data/meson.build b/src/ipa/rpi/vc4/data/meson.build
+index 6efa53cb..d9a580f6 100644
+--- a/src/ipa/rpi/vc4/data/meson.build
++++ b/src/ipa/rpi/vc4/data/meson.build
+@@ -17,6 +17,7 @@ conf_files = files([
+     'imx477_noir.json',
+     'imx477_scientific.json',
+     'imx519.json',
++    'imx662.json',
+     'imx708.json',
+     'imx708_noir.json',
+     'imx708_wide.json',

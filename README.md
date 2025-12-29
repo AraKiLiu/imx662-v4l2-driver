@@ -68,13 +68,19 @@ Sony IMX662 CMOS 影像感測器的高性能 V4L2 驅動程式，專為 Raspberr
 | `setup.sh` | 僅安裝驅動模組 |
 | `dkms.conf` | DKMS 配置 |
 | `Makefile` | 編譯配置 |
+| `patches/` | libcamera 相容性修補檔 |
 
-## 致謝 / Credits
+### 修補檔說明（patches/）
 
-- **Octopuscinema** & **Soho-enterprise** - IMX585 driver base
-- **Will Whang** - Driver porting and optimization
-- **Sasha Shturma** - DKMS installation script reference
-- **sohonomura2020** - Y-binning fix and dual camera support
+安裝腳本會自動套用以下修補檔以確保與 libcamera v0.6.0+ 相容：
+
+| 檔案 | 用途 |
+|------|------|
+| `pisp.patch` | 修正 PiSP 管線的媒體實體名稱和 CSI pad 編號 |
+| `camera_sensor_properties.patch` | 添加 IMX662 感測器屬性定義 |
+| `meson_data.patch` | 將 IMX662 調校檔加入建置系統 |
+| `rpicam_apps_libcamera060.patch` | 修正 rpicam-apps 的控制項合併方式 |
+
 
 ## 🚀 快速安裝（推薦）
 
@@ -179,7 +185,7 @@ uname -r
 ```
 
 **絕對必需：** Linux 核心 **6.12** 或更新版本
-- ✅ 6.12.34+rpt-rpi-2712（已測試）
+- ✅ 6.12.47+rpt-rpi-2712（已測試）
 - ✅ 6.12.x 系列
 - ❌ 6.11.x 或更舊版本（不支援）
 
